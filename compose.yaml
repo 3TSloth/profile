@@ -1,0 +1,67 @@
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: ./frontend.Dockerfile
+    ports: 
+      - 127.0.0.1:8080:5178
+    develop:
+      watch:
+        - action: sync
+          path: ./frontend/src
+          target: /deno-dir/src
+        - action: rebuild
+          path: ./frontend/deno.json
+
+  backend:
+    secrets:
+     - db_name
+     - db_password
+     - db_user
+    depends_on:
+      database:
+        condition: service_healthy
+        restart: true
+    build:
+      context: ./backend
+      dockerfile: ./backend.Dockerfile
+    ports:
+      - 127.0.0.1:7800:8000
+    develop:
+      watch:
+        - action: rebuild
+          path: ./backend/src
+          target: /rust-dir/src
+
+
+  database:
+    image: postgres:latest
+    secrets:
+      - db_name
+      - db_password
+      - db_user
+    environment:
+      POSTGRES_DB_FILE: /run/secrets/db_name
+      POSTGRES_PASSWORD_FILE: /run/secrets/db_password
+      POSTGRES_USER_FILE: /run/secrets/db_user
+    expose:
+      - 5432
+    ports:
+    - 7900:5432
+    restart: always
+    # set shared memory limit when using docker-compose
+    shm_size: 128mb
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $(cat /run/secrets/db_user) -d $(cat /run/secrets/db_name)"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s 
+
+secrets:
+  db_name:
+    file: ./db_name.txt
+  db_password:
+     file: ./db_password.txt
+  db_user:
+     file: ./db_user.txt
