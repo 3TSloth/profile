@@ -1,0 +1,10 @@
+*.env
+*.txt
+.vite
+*schema.rs
+Cargo.lock
+dist
+deno.lock
+target
+node_modules
+
