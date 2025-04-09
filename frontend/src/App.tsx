@@ -1,25 +1,24 @@
 import Header from "./components/Header.jsx";
 import MainContent from "./components/content/MainContent.jsx";
 import NavBar from "./components/NavBar.jsx";
+import { useState } from "react";
 
 function App() {
+  const [activeContentIndex, setActiveContent] = useState(0);
   return (
-    <div className="grid grid-cols-12 grid-rows-12 gap-4 h-screen">
-      <div className="col-span-12 row-span-2">
-        <Header></Header>
+    <div className="grid grid-cols-12 grid-rows-12 h-screen bg-black">
+      <div className="row-start-1 row-end-2 col-end-2 justify-self-stretch border-b-2 border-r-2 border-cyan-400 relative">
+        <img
+          src="/Logo.jpeg"
+          alt="Logo"
+          className="h-full object-contain absolute left-0"
+        />
       </div>
-      <div className="row-span-10 col-span-12">
-        <div className="grid grid-cols-12 grid-rows-12 gap-4 h-full">
-          <div className="col-start-1 col-end-3 row-span-12">
-            <NavBar>
-            </NavBar>
-          </div>
-          <div className="col-start-3 col-end-12 row-span-12">
-            <MainContent></MainContent>
-          </div>
-        </div>
+      <div className="row-start-2 row-end-13 col-end-2 border-r-2 border-r-cyan-400">
       </div>
-      <div className="col-span-12 row-span-2"></div>
+      <div className="row-end-2 col-start-2 col-end-13 border-b-2 border-cyan-400">
+      </div>
+      <div></div>
     </div>
   );
 }

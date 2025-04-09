@@ -1,4 +1,4 @@
-function MainContent() {
+function MainContent({ activeContentIndex }) {
   return (
     <div className="main-content">
       <h1>Main Content</h1>
