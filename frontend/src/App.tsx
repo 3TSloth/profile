@@ -1,24 +1,23 @@
-import Header from "./components/Header.jsx";
 import MainContent from "./components/content/MainContent.jsx";
 import NavBar from "./components/NavBar.jsx";
 import { useState } from "react";
+import Header from "./components/Header.jsx";
 
 function App() {
   const [activeContentIndex, setActiveContent] = useState(0);
   return (
-    <div className="grid grid-cols-12 grid-rows-12 h-screen bg-black">
-      <div className="row-start-1 row-end-2 col-end-2 justify-self-stretch border-b-2 border-r-2 border-cyan-400 relative">
-        <img
-          src="/Logo.jpeg"
-          alt="Logo"
-          className="h-full object-contain absolute left-0"
-        />
+    <div className="grid grid-rows-[auto_1fr_auto] grid-cols-[200px_1fr] min-h-screen bg-black">
+      <Header />
+      <div className="col-start-1 col-end-2 row-start-2 row-end-3 border-r-cyan-500 border-r-2 overflow-y-auto">
+        <NavBar setActiveContent={setActiveContent}></NavBar>
       </div>
-      <div className="row-start-2 row-end-13 col-end-2 border-r-2 border-r-cyan-400">
+      <div className="col-start-2 row-start-2 row-end-3  overflow-y-auto">
+        <MainContent activeContentIndex={activeContentIndex}></MainContent>
       </div>
-      <div className="row-end-2 col-start-2 col-end-13 border-b-2 border-cyan-400">
+      <div className="col-start-1 row-start-3 border-r-2 border-r-cyan-500" />
+      <div className="col-start-1 col-span-2 row-start-3  text-center py-10 px-10 border-t-cyan-500 border-t-2 flex items-end justify-end">
+        <p className="text-white ">Just a test...</p>
       </div>
-      <div></div>
     </div>
   );
 }

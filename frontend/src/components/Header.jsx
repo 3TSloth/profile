@@ -1,15 +1,16 @@
+import Logo from "./Logo.jsx";
+import Title from "./Title.jsx";
+
 function Header() {
   return (
-    <header className="bg-black text-white p-4">
-      <div className="grid grid-cols-4">
-        <div className="col-start-1 col-end-2">
-          <img className="h-30 w-30 object-scale-down" src="/Logo.jpeg"></img>
-        </div>
-        <div className="col-start-2 col-end-4 self-end">
-          <h1 className="text-2xl font-bold text-center">Paulo Moreira</h1>
-        </div>
+    <div className="contents">
+      <div className="col-start-1 col-end-2 row-end-2 border-r-2 border-b-2 border-cyan-500">
+        <Logo></Logo>
       </div>
-    </header>
+      <div className="col-start-2 row-end-2 border-b-cyan-500 border-b-2 py-10">
+        <Title></Title>
+      </div>
+    </div>
   );
 }
 
