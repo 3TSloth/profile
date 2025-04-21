@@ -16,7 +16,7 @@ function App() {
       </div>
       <div className="col-start-1 row-start-3 border-r-2 border-r-cyan-500" />
       <div className="col-start-1 col-span-2 row-start-3  text-center py-10 px-10 border-t-cyan-500 border-t-2 flex items-end justify-end">
-        <p className="text-white ">Just a test...</p>
+        <p className="text-white ">Placeholder for now...</p>
       </div>
     </div>
   );
