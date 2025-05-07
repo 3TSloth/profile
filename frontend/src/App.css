@@ -1,7 +1,22 @@
 @import "tailwindcss";
 
 
+@theme {
+  --font-display: "Anta-Regular";
+
+}
+
 @layer base {
+
+  @font-face {
+    font-family: Anta-Regular;
+    font-style: normal;
+    font-weight: 200 700;
+    font-display: swap;
+    src: url("/public/fonts/Anta-Regular.ttf");
+  }
+
+
     h1 {
       font-size: var(--text-2xl);
     }

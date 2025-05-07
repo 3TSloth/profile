@@ -6,7 +6,7 @@ import Header from "./components/Header.jsx";
 function App() {
   const [activeContentIndex, setActiveContent] = useState(0);
   return (
-    <div className="grid grid-rows-[auto_1fr_auto] grid-cols-[100px_1fr] min-h-screen bg-black">
+    <div className="grid grid-rows-[auto_1fr_auto] grid-cols-[100px_1fr] min-h-screen bg-black font-display">
       <div className="col-span-full">
         <Header setActiveContent={setActiveContent} />
       </div>
