@@ -1,10 +1,10 @@
 function Contact() {
   return (
-    <div className="grid grid-cols-1 gap-2">
-      <div className="place-items-center pt-10">
+    <div className="grid grid-cols-1 place-items-center gap-2">
+      <div className="pt-10">
         <h1 className="text-white">Contact Me</h1>
       </div>
-      <div className="place-items-center">
+      <div>
         <p className="text-white ">
           You can reach me at:
         </p>
