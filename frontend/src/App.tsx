@@ -8,7 +8,7 @@ function App() {
   return (
     <div className="grid grid-rows-[auto_1fr_auto] grid-cols-[200px_1fr] min-h-screen bg-black">
       <div className="col-span-full">
-        <Header />
+        <Header setActiveContent={setActiveContent} />
       </div>
       <div className="sm:hidden col-start-1 col-end-2 row-start-2 row-end-3 border-r-cyan-500 border-r-2 overflow-y-auto">
         <NavBar setActiveContent={setActiveContent}></NavBar>
