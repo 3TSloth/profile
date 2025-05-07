@@ -3,8 +3,8 @@ function NavBar({ setActiveContent, orientation = "vertical" }) {
     <div className="nav">
       <div
         className={orientation === "vertical"
-          ? "grid grid-rows-1  gap-10 pl-10 py-10"
-          : "grid grid-cols-4 auto-cols-max justify-items-center  gap-10 pl-10 py-10"}
+          ? "grid grid-rows-1  gap-10 px-5 py-10"
+          : "grid grid-cols-4 auto-cols-max justify-items-center  gap-10 px-5 py-10"}
       >
         <div>
           <a

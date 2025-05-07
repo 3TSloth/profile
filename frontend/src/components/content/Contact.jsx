@@ -1,10 +1,7 @@
 function Contact() {
   return (
-    <div className="grid grid-cols-1 place-items-center gap-2">
-      <div className="pt-10">
-        <h1 className="text-white">Contact Me</h1>
-      </div>
-      <div>
+    <div className="main-content grid grid-cols-6 place-items-center gap-2">
+      <div className="col-start-2 col-end-6 py-10">
         <p className="text-white ">
           You can reach me at:
         </p>

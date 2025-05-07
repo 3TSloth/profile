@@ -3,9 +3,9 @@ import Contact from "./Contact.jsx";
 import Projects from "./Projects.jsx";
 function MainContent({ activeContentIndex }) {
   const DefaultContent = () => (
-    <div className="main-content grid grid-cols-6 place-items-center gap-2">
-      <div className="col-start-3 col-end-5 py-10">
-        <p className="text-white text-center">
+    <div className="grid grid-cols-6 place-items-center gap-2">
+      <div className="col-start-2 col-end-6 py-10">
+        <p className="text-white">
           Hi there, I'm a software developer with a passion for creating
           innovative solutions. I enjoy working with various technologies and am
           always eager to learn new skills. My goal is to build applications
