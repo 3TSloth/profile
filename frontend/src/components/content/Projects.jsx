@@ -1,10 +1,7 @@
 function Projects() {
   return (
-    <div className="grid grid-cols-1 place-items-center gap-2">
-      <div>
-        <h1 className="text-white">Projects</h1>
-      </div>
-      <div>
+    <div className="grid grid-cols-6 place-items-center gap-2">
+      <div className="col-start-2 col-end-6 py-10">
         <p className="text-white ">
           Currently in progress. (Stay tuned!)
         </p>
