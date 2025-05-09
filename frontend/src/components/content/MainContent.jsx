@@ -19,8 +19,8 @@ function MainContent({ activeContentIndex }) {
   const content = [
     <DefaultContent key={0} />,
     <AboutMe key={1} />,
-    <Contact key={2} />,
-    <Projects key={3} />,
+    <Projects key={2} />,
+    <Contact key={3} />,
   ];
 
   return content[activeContentIndex];
