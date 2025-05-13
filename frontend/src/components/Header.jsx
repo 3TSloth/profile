@@ -8,7 +8,7 @@ function Header({ setActiveContent }) {
         <div className="col-start-1 col-end-2 border-b-2 border-r-2 sm:border-r-0 border-cyan-500">
           <Logo></Logo>
         </div>
-        <div className="sm:visible invisible col-start-2 border-r-2 border-b-2 border-cyan-500">
+        <div className="sm:visible invisible col-start-2 border-b-2 border-cyan-500">
           <NavBar
             setActiveContent={setActiveContent}
             orientation="horizontal"
