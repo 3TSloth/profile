@@ -1,3 +1,5 @@
+/// <reference types="vite/client" />
+
 import MainContent from "./components/content/MainContent.jsx";
 import NavBar from "./components/NavBar.jsx";
 import { useEffect, useState } from "react";
@@ -11,7 +13,10 @@ function App() {
   useEffect(() => {
     const fetchQuotes = async () => {
       try {
-        const response = await fetch("http://localhost: 8080/quotes");
+        const apiUrl = import.meta.env.VITE_API_URL ||
+          "http://localhost:80/api/v1"; // Fallback for dev
+        const response = await fetch(`${apiUrl}/quotes`);
+
         const data = await response.json();
         setQuotes(data);
       } catch (error) {
