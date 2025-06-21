@@ -1,4 +1,4 @@
-FROM rust:1.82
+FROM rust:latest
 
 EXPOSE 8000
 
@@ -13,7 +13,6 @@ COPY --chown=rusty:rusty . .
 
 RUN cargo install diesel_cli --no-default-features --features postgres
 
-ENTRYPOINT ["/bin/bash", "-c", "export DATABASE_URL=postgres://$(cat /run/secrets/db_user):$(cat /run/secrets/db_password)@database:5432/$(cat /run/secrets/db_name) && diesel setup && cargo run"] 
-
+ENTRYPOINT ["/bin/bash", "-c", "export DATABASE_URL=postgresql://$(cat /run/secrets/db_user):$(cat /run/secrets/db_password)@$(cat /run/secrets/db_name)/postgres && diesel setup && cargo run"] 
 
 
