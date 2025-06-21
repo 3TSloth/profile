@@ -4,7 +4,7 @@ services:
       context: ./frontend
       dockerfile: ./frontend.Dockerfile
     ports: 
-      - 127.0.0.1:8080:5178
+      - 127.0.0.1:80:5178
     develop:
       watch:
         - action: sync
@@ -18,10 +18,6 @@ services:
      - db_name
      - db_password
      - db_user
-    depends_on:
-      database:
-        condition: service_healthy
-        restart: true
     build:
       context: ./backend
       dockerfile: ./backend.Dockerfile
@@ -34,29 +30,51 @@ services:
           target: /rust-dir/src
 
 
-  database:
-    image: postgres:latest
+  mock-backend:
+    profiles: [dev]
     secrets:
-      - db_name
-      - db_password
-      - db_user
-    environment:
-      POSTGRES_DB_FILE: /run/secrets/db_name
-      POSTGRES_PASSWORD_FILE: /run/secrets/db_password
-      POSTGRES_USER_FILE: /run/secrets/db_user
-    expose:
-      - 5432
+     - db_name
+     - db_password
+     - db_user
+    build:
+      context: ./disability_backend
+      dockerfile: ./backend.Dockerfile
+    depends_on:
+      mock-database:
+        condition: service_healthy
     ports:
-    - 7900:5432
-    restart: always
-    # set shared memory limit when using docker-compose
-    shm_size: 128mb
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $(cat /run/secrets/db_user) -d $(cat /run/secrets/db_name)"]
-      interval: 10s
-      retries: 5
-      start_period: 30s
-      timeout: 10s 
+      - 127.0.0.1:7600:8000
+    develop:
+      watch:
+        - action: rebuild
+          path: ./disability_backend/src
+          target: /rust-dir/src
+
+
+  mock-database:
+      profiles: [dev]
+      image: postgres:latest
+      secrets:
+        - db_name
+        - db_password
+        - db_user
+      environment:
+        POSTGRES_DB_FILE: /run/secrets/db_name
+        POSTGRES_PASSWORD_FILE: /run/secrets/db_password
+        POSTGRES_USER_FILE: /run/secrets/db_user
+      expose:
+        - 5432
+      ports:
+      - 7900:5432
+      restart: always
+      # set shared memory limit when using docker-compose
+      shm_size: 128mb
+      healthcheck:
+        test: ["CMD-SHELL", "pg_isready -U $(cat /run/secrets/db_user) -d $(cat /run/secrets/db_name)"]
+        interval: 10s
+        retries: 5
+        start_period: 30s
+        timeout: 10s 
 
 secrets:
   db_name:
