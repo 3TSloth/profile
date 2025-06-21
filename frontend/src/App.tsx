@@ -1,10 +1,27 @@
 import MainContent from "./components/content/MainContent.jsx";
 import NavBar from "./components/NavBar.jsx";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Header from "./components/Header.jsx";
 
 function App() {
   const [activeContentIndex, setActiveContent] = useState(0);
+
+  const [quotes, setQuotes] = useState([]);
+
+  useEffect(() => {
+    const fetchQuotes = async () => {
+      try {
+        const response = await fetch("http://localhost: 8080/quotes");
+        const data = await response.json();
+        setQuotes(data);
+      } catch (error) {
+        console.error("Error fetching quotes:", error);
+      }
+    };
+
+    fetchQuotes();
+  }, []);
+
   return (
     <div className="grid grid-rows-[auto_1fr_auto] grid-cols-[100px_1fr] min-h-screen bg-black font-display">
       <div className="col-span-full">
@@ -18,7 +35,7 @@ function App() {
       </div>
       <div className="col-start-1 row-start-3" />
       <div className="col-start-1 col-span-2 row-start-3  text-center py-10 px-10 border-t-cyan-500 border-t-2 flex items-end justify-end">
-        <p className="text-white ">Placeholder for now...</p>
+        <p className="text-white ">{quotes[activeContentIndex]}</p>
       </div>
     </div>
   );
