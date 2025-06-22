@@ -18,5 +18,3 @@ COPY --chown=rusty:rusty Cargo.toml Cargo.lock ./
 RUN mkdir src && echo "fn main() {}" > src/main.rs && cargo fetch && rm -rf src
 
 
-# The rest of the source code will be mounted by docker compose watch
-COPY --chown=rusty:rusty . .

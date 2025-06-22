@@ -21,7 +21,9 @@ USER rusty
 COPY --chown=rusty:rusty Cargo.toml Cargo.lock ./
 
 # Build a dummy project to cache dependencies. This is more efficient than `cargo fetch`.
-RUN mkdir src && echo "fn main(){}" > src/main.rs && cargo build --release && rm -rf src
+RUN set -e; \
+    mkdir src && echo "fn main(){}" > src/main.rs && cargo build --release && rm -rf src
+
 
 
 # Copy the actual application source code
@@ -45,6 +47,7 @@ RUN set -e; \
     exit 1; \
     fi; \
     echo "--- Binary 'profile_backend' found. Build step successful. ---"
+
 
 #### ---- Final Runtime Stage ---- ####
 # Use a minimal, secure base image

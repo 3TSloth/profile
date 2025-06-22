@@ -4,9 +4,13 @@ services:
     build:
       context: ./frontend
       dockerfile: ./frontend.production.Dockerfile
+    volumes:
+      - frontend_dist:/app/dist
 
   backend:
     profiles: [production]
+    env_file:
+      - .env.production.backend
     entrypoint: /bin/bash -c "export DATABASE_URL=postgresql://$(cat /run/secrets/db_user):$(cat /run/secrets/db_password)@$(cat /run/secrets/db_host)/$(cat /run/secrets/db_name) && diesel setup && diesel migration run && /usr/local/bin/profile_backend"
     secrets:
      - db_name
@@ -15,7 +19,7 @@ services:
      - db_host
     build:
       context: ./backend
-      dockerfile: ./backend.Dockerfile
+      dockerfile: ./backend.production.Dockerfile
 
 
 
@@ -46,7 +50,7 @@ services:
         condition: service_healthy
     develop:
       watch:
-        - action: rebuild
+        - action: sync
           path: ./backend/src
           target: /rust-dir/src
 
@@ -94,16 +98,34 @@ services:
     image: nginx:latest
     profiles: [production]
     ports:
-      # This is the single entry point for all web traffic in production mode
-      - "127.0.0.1:80:80"
+      # Expose ports 80 and 443 to the internet
+      - "80:80"
+      - "443:443"
     volumes:
       # Mount the prod-specific nginx configuration
       - ./nginx/nginx.prod.conf:/etc/nginx/nginx.conf
+      # Mount the shared volumes for the frontend build and certbot
+      - frontend_dist:/usr/share/nginx/html:ro
+      - certbot_certs:/etc/letsencrypt
+      - certbot_www:/var/www/certbot
     depends_on:
       - frontend
       - backend
 
+  certbot:
+    image: certbot/certbot
+    profiles: [production]
+    volumes:
+      - certbot_certs:/etc/letsencrypt
+      - certbot_www:/var/www/certbot
+    # The entrypoint will keep the container running and check for renewal every 12 hours.
+    # The initial certificate generation must be done manually (see deployment steps).
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
 
+volumes:
+  frontend_dist:
+  certbot_certs:
+  certbot_www:
 
 secrets:
   db_name:
