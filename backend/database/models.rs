@@ -1,4 +1,3 @@
-
 use diesel::prelude::*;
 use rocket::serde::Deserialize;
 
@@ -8,6 +7,6 @@ use rocket::serde::Deserialize;
 #[derive(Deserialize)]
 #[serde(crate = "rocket::serde")]
 #[derive(FromForm, Debug)]
-pub struct Order {
-    pub name: String,
+pub struct Quotes {
+    pub quote: String,
 }

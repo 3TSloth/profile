@@ -1,0 +1,4 @@
+CREATE TABLE quotes (
+  id SERIAL PRIMARY KEY,
+  quote VARCHAR NOT NULL
+)

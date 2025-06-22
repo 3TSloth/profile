@@ -1,10 +1,29 @@
 services:
   frontend:
+    profiles: [production]
     build:
       context: ./frontend
-      dockerfile: ./frontend.Dockerfile
-    ports: 
-      - 127.0.0.1:80:5178
+      dockerfile: ./frontend.production.Dockerfile
+
+  backend:
+    profiles: [production]
+    entrypoint: /bin/bash -c "export DATABASE_URL=postgresql://$(cat /run/secrets/db_user):$(cat /run/secrets/db_password)@$(cat /run/secrets/db_host)/$(cat /run/secrets/db_name) && diesel setup && diesel migration run && /usr/local/bin/profile_backend"
+    secrets:
+     - db_name
+     - db_password
+     - db_user
+     - db_host
+    build:
+      context: ./backend
+      dockerfile: ./backend.Dockerfile
+
+
+
+  mock-frontend:
+    profiles: [dev]
+    build:
+      context: ./frontend
+      dockerfile: ./frontend.development.Dockerfile
     develop:
       watch:
         - action: sync
@@ -12,17 +31,19 @@ services:
           target: /deno-dir/src
         - action: rebuild
           path: ./frontend/deno.json
-
-  backend:
+  mock-backend:
+    profiles: [dev]
+    entrypoint: /bin/bash -c "export DATABASE_URL=postgresql://$(tr -d '\n' < /run/secrets/db_user_dev):$(tr -d '\n' < /run/secrets/db_password_dev)@mock-database/$(tr -d '\n' < /run/secrets/db_name_dev) && diesel setup && diesel migration run && cargo run"
     secrets:
-     - db_name
-     - db_password
-     - db_user
+        - db_name_dev
+        - db_password_dev
+        - db_user_dev
     build:
       context: ./backend
-      dockerfile: ./backend.Dockerfile
-    ports:
-      - 127.0.0.1:7800:8000
+      dockerfile: ./backend.development.Dockerfile
+    depends_on:
+      mock-database:
+        condition: service_healthy
     develop:
       watch:
         - action: rebuild
@@ -30,56 +51,75 @@ services:
           target: /rust-dir/src
 
 
-  mock-backend:
-    profiles: [dev]
-    secrets:
-     - db_name
-     - db_password
-     - db_user
-    build:
-      context: ./disability_backend
-      dockerfile: ./backend.Dockerfile
-    depends_on:
-      mock-database:
-        condition: service_healthy
-    ports:
-      - 127.0.0.1:7600:8000
-    develop:
-      watch:
-        - action: rebuild
-          path: ./disability_backend/src
-          target: /rust-dir/src
-
-
   mock-database:
       profiles: [dev]
       image: postgres:latest
       secrets:
-        - db_name
-        - db_password
-        - db_user
+        - db_name_dev
+        - db_password_dev
+        - db_user_dev
       environment:
-        POSTGRES_DB_FILE: /run/secrets/db_name
-        POSTGRES_PASSWORD_FILE: /run/secrets/db_password
-        POSTGRES_USER_FILE: /run/secrets/db_user
+        POSTGRES_DB_FILE: /run/secrets/db_name_dev
+        POSTGRES_PASSWORD_FILE: /run/secrets/db_password_dev
+        POSTGRES_USER_FILE: /run/secrets/db_user_dev
       expose:
         - 5432
       ports:
-      - 7900:5432
+      - "127.0.0.1:7900:5432"
       restart: always
       # set shared memory limit when using docker-compose
       shm_size: 128mb
       healthcheck:
-        test: ["CMD-SHELL", "pg_isready -U $(cat /run/secrets/db_user) -d $(cat /run/secrets/db_name)"]
+        test: ["CMD-SHELL", "pg_isready -U $(tr -d '\n' < /run/secrets/db_user_dev) -d $(tr -d '\n' < /run/secrets/db_name_dev)"]
         interval: 10s
         retries: 5
         start_period: 30s
         timeout: 10s 
 
+
+  nginx-dev:
+    image: nginx:latest
+    profiles: [dev]
+    ports:
+      # This is now the single entry point for all web traffic in dev mode
+      - "127.0.0.1:80:80"
+    volumes:
+      # Mount the dev-specific nginx configuration
+      - ./nginx/nginx.dev.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - mock-frontend
+      - mock-backend
+
+  nginx-prod:
+    image: nginx:latest
+    profiles: [production]
+    ports:
+      # This is the single entry point for all web traffic in production mode
+      - "127.0.0.1:80:80"
+    volumes:
+      # Mount the prod-specific nginx configuration
+      - ./nginx/nginx.prod.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - frontend
+      - backend
+
+
+
 secrets:
   db_name:
     file: ./db_name.txt
   db_password:
-     file: ./db_password.txt
+    file: ./db_password.txt
   db_user:
-     file: ./db_user.txt
+    file: ./db_user.txt
+  db_host:
+    file: ./db_host.txt
+  db_name_dev:
+    file: ./db_name_dev.txt
+  db_password_dev:
+    file: ./db_password_dev.txt
+  db_user_dev:
+    file: ./db_user_dev.txt
+  db_host_dev:
+    file: ./db_host_dev.txt
+

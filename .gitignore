@@ -1,8 +1,7 @@
 *.env
-*.txt
+db_*.txt
 .vite
 *schema.rs
-Cargo.lock
 dist
 deno.lock
 target
