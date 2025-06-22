@@ -7,6 +7,7 @@ services:
     volumes:
       - frontend_dist:/app/dist
 
+
   backend:
     profiles: [production]
     env_file:
@@ -35,6 +36,9 @@ services:
           target: /deno-dir/src
         - action: rebuild
           path: ./frontend/deno.json
+    ports:
+      - 8080:80
+      
   mock-backend:
     profiles: [dev]
     entrypoint: /bin/bash -c "export DATABASE_URL=postgresql://$(tr -d '\n' < /run/secrets/db_user_dev):$(tr -d '\n' < /run/secrets/db_password_dev)@mock-database/$(tr -d '\n' < /run/secrets/db_name_dev) && diesel setup && diesel migration run && cargo run"
@@ -80,52 +84,9 @@ services:
         start_period: 30s
         timeout: 10s 
 
-
-  nginx-dev:
-    image: nginx:latest
-    profiles: [dev]
-    ports:
-      # This is now the single entry point for all web traffic in dev mode
-      - "127.0.0.1:80:80"
-    volumes:
-      # Mount the dev-specific nginx configuration
-      - ./nginx/nginx.dev.conf:/etc/nginx/nginx.conf
-    depends_on:
-      - mock-frontend
-      - mock-backend
-
-  nginx-prod:
-    image: nginx:latest
-    profiles: [production]
-    ports:
-      # Expose ports 80 and 443 to the internet
-      - "80:80"
-      - "443:443"
-    volumes:
-      # Mount the prod-specific nginx configuration
-      - ./nginx/nginx.prod.conf:/etc/nginx/nginx.conf
-      # Mount the shared volumes for the frontend build and certbot
-      - frontend_dist:/usr/share/nginx/html:ro
-      - certbot_certs:/etc/letsencrypt
-      - certbot_www:/var/www/certbot
-    depends_on:
-      - frontend
-      - backend
-
-  certbot:
-    image: certbot/certbot
-    profiles: [production]
-    volumes:
-      - certbot_certs:/etc/letsencrypt
-      - certbot_www:/var/www/certbot
-    # The entrypoint will keep the container running and check for renewal every 12 hours.
-    # The initial certificate generation must be done manually (see deployment steps).
-    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
-
 volumes:
   frontend_dist:
-  certbot_certs:
-  certbot_www:
+
 
 secrets:
   db_name:
