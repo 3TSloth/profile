@@ -5,8 +5,6 @@ WORKDIR /app
 
 COPY deno.json ./
 
-RUN deno cache --node-modules-dir deno.json
-
 COPY . .
 
 
