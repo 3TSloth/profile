@@ -8,6 +8,7 @@ services:
       - frontend_dist:/app/dist
 
 
+
   backend:
     profiles: [production]
     env_file:
@@ -37,7 +38,8 @@ services:
         - action: rebuild
           path: ./frontend/deno.json
     ports:
-      - 8080:80
+      - 8080:5178
+
       
   mock-backend:
     profiles: [dev]
@@ -57,6 +59,8 @@ services:
         - action: sync
           path: ./backend/src
           target: /rust-dir/src
+    ports:
+      - 8000:8000
 
 
   mock-database:
