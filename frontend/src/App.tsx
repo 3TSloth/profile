@@ -14,9 +14,8 @@ function App() {
     const fetchQuotes = async () => {
       try {
         const apiUrl = import.meta.env.VITE_API_URL;
-
         if (apiUrl === undefined || apiUrl === null) {
-          console.log("API URL is undefined or null.");
+          console.log("API URL is undefined or null");
           return;
         }
         const response = await fetch(`${apiUrl}/quotes`);
