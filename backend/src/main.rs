@@ -1,5 +1,6 @@
 #[macro_use]
 extern crate rocket;
+use dotenvy::dotenv;
 use rocket::http::Method;
 
 use rocket::serde::json::{json, Value};
@@ -13,21 +14,29 @@ fn index() -> Value {
     json!({"hello": "world"})
 }
 
-#[get("/quotes")]
+#[get("/api/v1/quotes")]
 fn get_quotes() -> Value {
     json!({"goodbye": "world"})
 }
 
 pub fn establish_connection() -> PgConnection {
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
-    println!("Got here");
+    println!("Allowed Origins Should Work");
     PgConnection::establish(&database_url)
         .unwrap_or_else(|_| panic!("Error connecting to {}", database_url))
 }
 
 #[launch]
 fn rocket() -> _ {
-    let allowed_origins = rocket_cors::AllowedOrigins::some_exact(&["http://localhost:80"]);
+    dotenv().ok();
+
+    let origins_str =
+        env::var("ALLOWED_ORIGINS").expect("ALLOWED_ORIGINS must be set in your .env file");
+
+    let mut origins: Vec<&str> = origins_str.split(',').collect();
+    origins.push("http://localhost:8080");
+
+    let allowed_origins = rocket_cors::AllowedOrigins::some_exact(&origins);
 
     let cors = rocket_cors::CorsOptions {
         allowed_origins,
@@ -41,8 +50,6 @@ fn rocket() -> _ {
     }
     .to_cors()
     .expect("error when attempting to make cors");
-
-    establish_connection();
 
     rocket::build()
         .mount("/", routes![index, get_quotes])
