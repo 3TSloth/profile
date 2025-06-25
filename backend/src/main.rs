@@ -13,6 +13,11 @@ fn index() -> Value {
     json!({"hello": "world"})
 }
 
+#[get("/quotes")]
+fn get_quotes() -> Value {
+    json!({"goodbye": "world"})
+}
+
 pub fn establish_connection() -> PgConnection {
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
     println!("Got here");
@@ -39,5 +44,7 @@ fn rocket() -> _ {
 
     establish_connection();
 
-    rocket::build().mount("/", routes![index]).attach(cors)
+    rocket::build()
+        .mount("/", routes![index, get_quotes])
+        .attach(cors)
 }
