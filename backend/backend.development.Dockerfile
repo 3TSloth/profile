@@ -13,8 +13,6 @@ USER rusty
 # Install diesel_cli
 RUN cargo install diesel_cli --no-default-features --features postgres
 
-# Copy manifests and fetch dependencies to a separate layer for caching
-COPY --chown=rusty:rusty Cargo.toml Cargo.lock ./
-RUN mkdir src && echo "fn main() {}" > src/main.rs && cargo fetch && rm -rf src
+COPY --chown=rusty:rusty . .
 
 
