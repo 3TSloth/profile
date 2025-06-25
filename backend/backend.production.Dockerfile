@@ -30,6 +30,7 @@ RUN set -e; \
 COPY --chown=rusty:rusty src ./src
 COPY --chown=rusty:rusty migrations ./migrations
 COPY --chown=rusty:rusty diesel.toml .
+COPY --chown=rusty:rusty Rocket.toml .
 
 # Build the application for release
 RUN set -e; \
@@ -71,8 +72,10 @@ COPY --from=builder --chown=rusty:rusty /rust-dir/target/release/profile_backend
 COPY --from=builder --chown=rusty:rusty /usr/local/cargo/bin/diesel /usr/local/bin/diesel
 
 COPY --from=builder --chown=rusty:rusty /rust-dir/diesel.toml .
+COPY --from=builder --chown=rusty:rusty /rust-dir/Rocket.toml .
 COPY --from=builder --chown=rusty:rusty /rust-dir/migrations ./migrations
 
+EXPOSE 8000
 
 # Set the default command to run the application.
 CMD ["/usr/local/bin/profile_backend"]
