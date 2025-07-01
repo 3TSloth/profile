@@ -43,7 +43,11 @@ function App() {
       </div>
       <div className="col-start-1 row-start-3" />
       <div className="col-start-1 col-span-2 row-start-3  text-center py-10 px-10 border-t-cyan-500 border-t-2 flex items-end justify-end">
-        <p className="text-white ">{quotes[activeContentIndex]}</p>
+        <p className="text-white ">
+          {quotes.length > 0
+            ? quotes[activeContentIndex % quotes.length]["quote"]
+            : "Placeholder for now."}
+        </p>
       </div>
     </div>
   );

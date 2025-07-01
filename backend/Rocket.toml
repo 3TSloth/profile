@@ -1,3 +1,7 @@
 [default]
 address = "0.0.0.0"
 limits = { form = "64 kB", json = "1 MiB" }
+
+
+[default.databases]
+diesel_mysql = { url = { env = "DATABASE_URL" } }

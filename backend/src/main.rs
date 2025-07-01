@@ -1,12 +1,11 @@
-#[macro_use]
-extern crate rocket;
-use dotenvy::dotenv;
+use diesel::prelude::*;
+use profile_backend::models::Quote;
 use rocket::http::Method;
+use rocket::{get, launch, routes}; // Import Diesel query DSL traits
 
+use profile_backend::establish_connection;
 use rocket::serde::json::{json, Value};
 use rocket_cors::AllowedHeaders;
-
-use diesel::prelude::*;
 use std::env;
 
 #[get("/")]
@@ -16,25 +15,27 @@ fn index() -> Value {
 
 #[get("/api/v1/quotes")]
 fn get_quotes() -> Value {
-    json!({"goodbye": "world"})
-}
+    use profile_backend::schema::quotes::dsl::*;
 
-pub fn establish_connection() -> PgConnection {
-    let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
-    println!("Allowed Origins Should Work");
-    PgConnection::establish(&database_url)
-        .unwrap_or_else(|_| panic!("Error connecting to {}", database_url))
+    let connection = &mut establish_connection();
+    let results = quotes
+        .limit(5)
+        .select(Quote::as_select())
+        .load::<Quote>(connection)
+        .expect("Error loading quotes");
+
+    json!(results)
 }
 
 #[launch]
 fn rocket() -> _ {
-    dotenv().ok();
+    dotenvy::from_filename(".env.development").ok();
 
     let origins_str =
         env::var("ALLOWED_ORIGINS").expect("ALLOWED_ORIGINS must be set in your .env file");
 
-    let mut origins: Vec<&str> = origins_str.split(',').collect();
-    origins.push("http://localhost:8080");
+    let origins: Vec<&str> = origins_str.split(',').collect();
+    println!("Allowed origins: {:?}", origins);
 
     let allowed_origins = rocket_cors::AllowedOrigins::some_exact(&origins);
 
