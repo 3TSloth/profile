@@ -18,7 +18,7 @@ function App() {
           console.log("API URL is undefined or null");
           return;
         }
-        const response = await fetch(`${apiUrl}/quotes`);
+        const response = await fetch(`${apiUrl}/api/v1/quotes`);
 
         const data = await response.json();
         setQuotes(data);

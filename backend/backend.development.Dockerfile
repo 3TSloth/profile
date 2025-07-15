@@ -16,3 +16,4 @@ RUN cargo install diesel_cli --no-default-features --features postgres
 COPY --chown=rusty:rusty . .
 
 
+CMD ["/usr/local/bin/profile_backend"]
