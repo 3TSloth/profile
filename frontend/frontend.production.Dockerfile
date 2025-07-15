@@ -1,25 +1,46 @@
-FROM denoland/deno:2.3.6 AS builder
+
+FROM denoland/deno:latest AS builder
 
 WORKDIR /app
 
-
-COPY deno.json ./
-
 COPY . .
-
 
 RUN deno task build
 
-FROM nginx:1.27.5-alpine-slim AS final
+FROM rust:slim-bullseye AS rust_builder
+
+# Set the working directory.
+WORKDIR /app
 
 
-# Copy the built assets from the 'builder' stage
-COPY --from=builder /app/dist /usr/share/nginx/html
+# Copy the dependency manifest.
+COPY ./Cargo.toml ./Cargo.toml
+COPY ./Cargo.lock ./Cargo.lock
 
-# (Optional but Recommended) Copy a custom Nginx config for single-page apps (SPAs)
-# This ensures that refreshing a page on a route like /about doesn't result in a 404
-COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Expose port 80 and start Nginx
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+
+# Now copy the actual source code and build the application.
+COPY ./src ./src
+COPY ./Rocket.toml ./Rocket.toml
+RUN cargo build --release
+
+# Stage 3: Create the final, minimal production image
+# Use a minimal "distroless" base image for a small and secure final container.
+FROM gcr.io/distroless/cc-debian12
+
+# Set the working directory.
+WORKDIR /app
+
+# Copy the static frontend assets from the 'builder' stage.
+COPY --from=builder /app/dist ./dist
+
+# Copy the compiled Rocket server binary from the 'rust_builder' stage.
+COPY --from=rust_builder app/target/release/profile_frontend .
+COPY --from=rust_builder /app/Rocket.toml ./Rocket.toml
+
+
+# Expose the port Rocket will run on.
+EXPOSE 8000
+
+# The command to run the server when the container starts.
+CMD ["./profile_frontend"]

@@ -6,6 +6,8 @@ services:
       dockerfile: ./frontend.production.Dockerfile
     volumes:
       - frontend_dist:/app/dist
+    ports:
+      - 8080:8000
 
 
 

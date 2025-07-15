@@ -20,11 +20,6 @@ USER rusty
 # Copy manifests to cache dependencies
 COPY --chown=rusty:rusty Cargo.toml Cargo.lock ./
 
-# Build a dummy project to cache dependencies. This is more efficient than `cargo fetch`.
-RUN set -e; \
-    mkdir src && echo "fn main(){}" > src/main.rs && cargo build --release && rm -rf src
-
-
 
 # Copy the actual application source code
 COPY --chown=rusty:rusty src ./src
@@ -33,22 +28,7 @@ COPY --chown=rusty:rusty diesel.toml .
 COPY --chown=rusty:rusty Rocket.toml .
 
 # Build the application for release
-RUN set -e; \
-    echo "--- Starting final cargo build --release ---"; \
-    cargo build --release; \
-    BUILD_EXIT_CODE=$?; \
-    if [ $BUILD_EXIT_CODE -ne 0 ]; then \
-    echo "ERROR: cargo build --release failed with exit code $BUILD_EXIT_CODE."; \
-    exit $BUILD_EXIT_CODE; \
-    fi; \
-    echo "--- Finished cargo build --release. Verifying binary ---"; \
-    ls -l target/release/; \
-    if [ ! -f target/release/profile_backend ]; then \
-    echo "ERROR: Compiled binary 'profile_backend' not found in target/release/."; \
-    exit 1; \
-    fi; \
-    echo "--- Binary 'profile_backend' found. Build step successful. ---"
-
+RUN  cargo build --release;
 
 #### ---- Final Runtime Stage ---- ####
 # Use a minimal, secure base image
