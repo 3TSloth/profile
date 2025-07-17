@@ -33,9 +33,10 @@ WORKDIR /app
 
 # Copy the static frontend assets from the 'builder' stage.
 COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/src/game/starrunner ./dist/starrunner
 
 # Copy the compiled Rocket server binary from the 'rust_builder' stage.
-COPY --from=rust_builder app/target/release/profile_frontend .
+COPY --from=rust_builder /app/target/release/profile_frontend .
 COPY --from=rust_builder /app/Rocket.toml ./Rocket.toml
 
 

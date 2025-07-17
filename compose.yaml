@@ -14,7 +14,7 @@ services:
   backend:
     profiles: [production]
     env_file:
-      - .env.production.backend
+      - ./backend/.env.production.backend
     entrypoint: /bin/bash -c "export DATABASE_URL=postgresql://$(cat /run/secrets/db_user):$(cat /run/secrets/db_password)@$(cat /run/secrets/db_host)/$(cat /run/secrets/db_name) && diesel setup && diesel migration run && /usr/local/bin/profile_backend"
     secrets:
      - db_name
@@ -40,7 +40,7 @@ services:
         - action: rebuild
           path: ./frontend/deno.json
     ports:
-      - 8080:5178
+      - 8080:8000
 
       
   mock-backend:

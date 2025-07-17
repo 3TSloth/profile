@@ -11,23 +11,28 @@ function App() {
   const [quotes, setQuotes] = useState([]);
 
   useEffect(() => {
-    const fetchQuotes = async () => {
+    const initializeApp = async () => {
       try {
-        const apiUrl = import.meta.env.VITE_API_URL;
-        if (apiUrl === undefined || apiUrl === null) {
-          console.log("API URL is undefined or null");
+        // Step 1: Fetch the configuration from our own server
+        const configResponse = await fetch("/config");
+        const config = await configResponse.json();
+        const apiUrl = config.backendApiUrl;
+
+        if (!apiUrl) {
+          console.error("API URL not found in config");
           return;
         }
-        const response = await fetch(`${apiUrl}/api/v1/quotes`);
 
-        const data = await response.json();
+        // Step 2: Now use that URL to fetch the quotes from the backend
+        const quotesResponse = await fetch(`${apiUrl}/api/v1/quotes`);
+        const data = await quotesResponse.json();
         setQuotes(data);
       } catch (error) {
-        console.error("Error fetching quotes:", error);
+        console.error("Error during app initialization:", error);
       }
     };
 
-    fetchQuotes();
+    initializeApp();
   }, []);
 
   return (
