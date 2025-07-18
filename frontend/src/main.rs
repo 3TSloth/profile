@@ -3,7 +3,7 @@ extern crate rocket;
 
 use rocket::fs::{relative, FileServer};
 use rocket::serde::json::{json, Value};
-use rocket_async_compression::Compression;
+use rocket_async_compression::{Compression, Level};
 use std::env;
 
 #[get("/config")]
@@ -21,6 +21,6 @@ fn config() -> Value {
 fn rocket() -> _ {
     rocket::build()
         .mount("/", routes![config])
-        .attach(Compression::fairing())
+        .attach(Compression::with_level(Level::Fastest))
         .mount("/", FileServer::from(relative!("dist")))
 }
