@@ -5,6 +5,7 @@
     "preview": "deno run -A --node-modules-dir npm:vite preview"
   },
   "imports": {
+    "@googlemaps/markerclusterer": "npm:@googlemaps/markerclusterer@^2.6.2",
     "@tailwindcss/vite": "npm:@tailwindcss/vite@^4.0.6",
     "@types/react": "npm:@types/react@^19.0.8",
     "@types/react-dom": "npm:@types/react-dom@^19.0.3",
