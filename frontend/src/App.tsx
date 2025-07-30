@@ -1,4 +1,4 @@
-/// <reference types="vite/client" />
+/// <reference types="npm:vite/client" />
 
 import MainContent from "./components/content/MainContent.jsx";
 import NavBar from "./components/NavBar.jsx";

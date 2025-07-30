@@ -6,6 +6,8 @@ RUN chown deno:deno /app
 
 # Copy source files and set ownership at the same time
 COPY --chown=deno:deno . .
+COPY --chown=deno:deno ./.env.development .env.development
+
 
 # Switch to the non-root user
 USER deno
