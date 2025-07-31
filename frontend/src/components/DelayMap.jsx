@@ -1,5 +1,6 @@
 import { APIProvider, Map, useMap } from "@vis.gl/react-google-maps";
 import { useEffect } from "react";
+import { MarkerClusterer } from "@googlemaps/markerclusterer";
 
 const stationNames = [
   { name: "Yonge and Dundas Station", info: "Downtown core" },
@@ -41,6 +42,7 @@ function StationMarkers() {
       );
       const searchByText = google.maps.places.Place.searchByText;
       const infoWindow = new google.maps.InfoWindow();
+      const markers = [];
 
       for (const station of stationNames) {
         try {
@@ -67,10 +69,13 @@ function StationMarkers() {
             );
             infoWindow.open(map, marker);
           });
+          markers.push(marker);
         } catch (error) {
           console.error(`❌ Failed to add station ${station.name}:`, error);
         }
       }
+
+      new MarkerClusterer({ markers, map });
     }
 
     placeStations();
