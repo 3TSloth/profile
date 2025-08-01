@@ -6,5 +6,4 @@ deno.lock
 target
 node_modules
 
-frontend/Cargo.lock
-backend/Cargo.lock
+**/Cargo.lock
