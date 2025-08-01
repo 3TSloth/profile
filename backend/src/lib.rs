@@ -1,5 +1,6 @@
 pub mod models;
 pub mod schema;
+pub mod sql_types;
 
 use diesel::{pg::PgConnection, Connection};
 use dotenvy::dotenv;

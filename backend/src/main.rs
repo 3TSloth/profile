@@ -1,10 +1,14 @@
 use diesel::prelude::*;
 use profile_backend::models::Quote;
+use profile_backend::models::TtcSubwayDelayData;
+
+use profile_backend::schema::quotes::dsl::*;
 use rocket::http::Method;
+use rocket::http::Status;
 use rocket::{get, launch, routes}; // Import Diesel query DSL traits
 
 use profile_backend::establish_connection;
-use rocket::serde::json::{json, Value};
+use rocket::serde::json::{json, Json, Value};
 use rocket_cors::AllowedHeaders;
 use std::env;
 
@@ -14,15 +18,33 @@ fn index() -> Value {
 }
 
 #[get("/api/v1/quotes")]
-fn get_quotes() -> Value {
-    use profile_backend::schema::quotes::dsl::*;
-
+fn get_quotes() -> Result<Json<Vec<Quote>>, Status> {
     let connection = &mut establish_connection();
-    let results = quotes
+
+    let result = quotes
         .limit(5)
         .select(Quote::as_select())
-        .load::<Quote>(connection)
-        .expect("Error loading quotes");
+        .load::<Quote>(connection);
+
+    match result {
+        Ok(records) => Ok(Json(records)),
+        Err(e) => {
+            eprintln!("Database error: {e}");
+            Err(Status::InternalServerError)
+        }
+    }
+}
+
+#[get("/api/v1/ttc_subway_delay_data")]
+fn get_ttc_subway_delay_data() -> Value {
+    use profile_backend::schema::ttc_subway_delay_data::dsl::*;
+    let connection = &mut establish_connection();
+
+    let results = ttc_subway_delay_data
+        .limit(10)
+        .select(TtcSubwayDelayData::as_select())
+        .load::<TtcSubwayDelayData>(connection)
+        .expect("Error loading TTC Subway Delay Data");
 
     json!(results)
 }
@@ -53,6 +75,6 @@ fn rocket() -> _ {
     .expect("error when attempting to make cors");
 
     rocket::build()
-        .mount("/", routes![index, get_quotes])
+        .mount("/", routes![index, get_quotes, get_ttc_subway_delay_data])
         .attach(cors)
 }
