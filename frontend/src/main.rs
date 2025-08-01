@@ -1,10 +1,12 @@
-#[macro_use]
 extern crate rocket;
 
 use rocket::fs::{relative, FileServer};
+
 use rocket::serde::json::{json, Value};
+use rocket::{get, launch, routes};
 use rocket_async_compression::{Compression, Level};
-use std::env;
+
+use std::env; // Import Diesel query DSL traits
 
 #[get("/config")]
 fn config() -> Value {

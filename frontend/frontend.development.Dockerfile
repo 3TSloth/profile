@@ -16,8 +16,6 @@ USER deno
 RUN deno task build
 
 
-
-
 FROM rust:slim-bullseye AS rust_builder
 
 # Set the working directory.
