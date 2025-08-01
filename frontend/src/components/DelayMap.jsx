@@ -1,5 +1,5 @@
 import { APIProvider, Map, useMap } from "@vis.gl/react-google-maps";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { MarkerClusterer } from "@googlemaps/markerclusterer";
 
 const stationNames = [
@@ -10,7 +10,6 @@ const stationNames = [
 
 function DelayMap() {
   const googleMapsApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
-
   return (
     <div className="col-start-1 col-end-6 row-start-2 row-end-7 h-full py-10">
       <APIProvider
@@ -32,6 +31,7 @@ function DelayMap() {
 
 function StationMarkers() {
   const map = useMap();
+  const [TTCData] = useTTCData();
 
   useEffect(() => {
     if (!map || !google.maps?.marker || !google.maps?.places?.Place) return;
@@ -44,34 +44,40 @@ function StationMarkers() {
       const infoWindow = new google.maps.InfoWindow();
       const markers = [];
 
-      for (const station of stationNames) {
+      if (!TTCData) return;
+
+      for (const [index, station] of TTCData.entries()) {
         try {
           const response = await searchByText({
-            textQuery: station.name,
+            textQuery: station["station"],
             fields: ["location", "displayName"],
           });
-          const place = response.places?.[0];
+
+          const place = response?.places?.[0];
 
           if (!place?.location) {
-            console.warn(`⚠️ No location found for ${station.name}`);
+            console.warn(`⚠️ No location found for ${station.station}`);
             continue;
           }
 
+          const jitteredPosition = jitterPosition(place.location, index);
+
           const marker = new AdvancedMarkerElement({
             map,
-            position: place.location,
-            title: place.displayName?.text ?? station.name,
+            position: jitteredPosition,
+            title: place.displayName ?? station.station,
           });
 
           marker.addListener("click", () => {
             infoWindow.setContent(
-              `<strong>${station.name}</strong><br>${station.info}`,
+              `<strong>${station.station}</strong><br>${station.info ?? ""}`,
             );
             infoWindow.open(map, marker);
           });
+
           markers.push(marker);
         } catch (error) {
-          console.error(`❌ Failed to add station ${station.name}:`, error);
+          console.error(`❌ Failed to add station ${station.station}:`, error);
         }
       }
 
@@ -79,9 +85,54 @@ function StationMarkers() {
     }
 
     placeStations();
-  }, [map]);
+  }, [map, TTCData]);
 
   return null;
 }
 
+function useTTCData() {
+  const [TTCData, setTTCData] = useState([]);
+
+  useEffect(() => {
+    const getTTCData = async () => {
+      try {
+        const configResponse = await fetch("/config");
+        const config = await configResponse.json();
+        const apiUrl = config.backendApiUrl;
+
+        if (!apiUrl) {
+          console.error("API URL not found in config");
+          return;
+        }
+
+        const TTCDataResponse = await fetch(
+          `${apiUrl}/api/v1/ttc_subway_delay_data`,
+        );
+        const data = await TTCDataResponse.json();
+        setTTCData(data);
+      } catch (error) {
+        console.error("Error when retreiving TTC Data:", error);
+      }
+    };
+
+    getTTCData();
+  }, []);
+  return [TTCData];
+}
+
+function jitterPosition(position, index) {
+  const jitter = (Math.random() - 0.5) * 0.0001;
+
+  const lat = typeof position.lat === "function"
+    ? position.lat()
+    : position.lat;
+  const lng = typeof position.lng === "function"
+    ? position.lng()
+    : position.lng;
+
+  return {
+    lat: lat + jitter,
+    lng: lng + jitter,
+  };
+}
 export default DelayMap;
