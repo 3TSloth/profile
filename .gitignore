@@ -1,7 +1,6 @@
 *.env
 db_*.txt
 .vite
-*schema.rs
 dist
 deno.lock
 target
