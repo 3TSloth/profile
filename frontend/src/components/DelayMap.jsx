@@ -120,7 +120,7 @@ function useTTCData() {
   return [TTCData];
 }
 
-function jitterPosition(position, index) {
+function jitterPosition(position) {
   const jitter = (Math.random() - 0.5) * 0.0001;
 
   const lat = typeof position.lat === "function"
