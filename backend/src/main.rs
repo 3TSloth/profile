@@ -41,7 +41,6 @@ fn get_ttc_subway_delay_data() -> Value {
     let connection = &mut establish_connection();
 
     let results = ttc_subway_delay_data
-        .limit(10)
         .select(TtcSubwayDelayData::as_select())
         .load::<TtcSubwayDelayData>(connection)
         .expect("Error loading TTC Subway Delay Data");
