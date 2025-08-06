@@ -41,50 +41,61 @@ function StationMarkers() {
       const { AdvancedMarkerElement } = await google.maps.importLibrary(
         "marker",
       );
-
       const searchByText = google.maps.places.Place.searchByText;
       const infoWindow = new google.maps.InfoWindow();
-      const markers = [];
 
       if (!TTCData) return;
 
-      const placeCache = new Map();
       const stationCount = new Map();
-      for (const station of TTCData) {
-        const stationName = station["station"];
+      const placePromises = [];
 
-        if (!station?.station || !stationName) {
-          console.warn("Station name is missing:", station);
-          continue;
-        }
-        let place;
+      // Collect unique station names
+      const uniqueStationNames = [
+        ...new Set(TTCData.map((s) => s.station).filter(Boolean)),
+      ];
 
-        if (placeCache.has(stationName)) {
-          place = placeCache.get(stationName);
-        } else {
-          try {
-            const response = await searchByText({
-              textQuery: stationName,
-              fields: ["location", "displayName"],
-            });
+      // Start all place searches in parallel
+      for (const stationName of uniqueStationNames) {
+        const promise = searchByText({
+          textQuery: stationName,
+          fields: ["location", "displayName"],
+        });
+        placePromises.push([stationName, promise]);
+      }
 
-            place = response?.places?.[0];
+      // Wait for all place lookups to complete
+      const results = await Promise.allSettled(
+        placePromises.map(([, promise]) => promise),
+      );
+
+      const placeCache = new Map();
+
+      // Match results back to station names
+      for (let i = 0; i < results.length; i++) {
+        const [stationName] = placePromises[i];
+        const result = results[i];
+
+        if (result.status === "fulfilled") {
+          const place = result.value?.places?.[0];
+          if (place?.location) {
             placeCache.set(stationName, place);
-
-            if (!place?.location) {
-              console.warn(`⚠️ No location found for ${station.station}`);
-              continue;
-            }
-          } catch (error) {
-            console.error(
-              `❌ Failed to add station ${station.station}:`,
-              error,
-            );
+          } else {
+            console.warn(`⚠️ No location found for ${stationName}`);
           }
+        } else {
+          console.warn(`❌ Failed to look up ${stationName}:`, result.reason);
         }
+      }
 
-        const count = stationCount.get(stationName) ?? 0;
-        stationCount.set(stationName, count + 1);
+      const markers = [];
+
+      // Create markers (off-map) using placeCache
+      for (const station of TTCData) {
+        const place = placeCache.get(station.station);
+        if (!place?.location) continue;
+
+        const count = stationCount.get(station.station) ?? 0;
+        stationCount.set(station.station, count + 1);
 
         const marker = createMarker({
           map,
@@ -95,14 +106,16 @@ function StationMarkers() {
           offsetIndex: count,
         });
 
-        markers.push(marker);
+        if (marker) markers.push(marker);
       }
 
+      // Only now attach markers via clusterer
       new MarkerClusterer({
         markers,
         map,
-        minimumClusterSize: 2, // cluster starts when 2+ markers are nearby
+        minimumClusterSize: 2,
         maxZoom: 17,
+        markerLayer: true,
       });
     }
 
@@ -135,7 +148,7 @@ function createMarker(
 
   marker.addListener("click", () => {
     infoWindow.setContent(
-      `<strong>${station.station}</strong><br>${station.info ?? ""}`,
+      `Delay in minutes: ${station.delay ?? ""}`,
     );
     infoWindow.open(map, marker);
   });
