@@ -5,7 +5,7 @@ WORKDIR /app
 
 COPY . .
 
-RUN deno task build
+RUN deno task build_production
 
 FROM rust:slim-bullseye AS rust_builder
 
