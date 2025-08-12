@@ -72,5 +72,5 @@ fn vertex(vertex: Vertex) -> VertexOutput {
 fn fragment(input: VertexOutput) -> @location(0) vec4<f32> {
 
 
-    return color +(vec4(sin(time[0]) +0.5, sin(time[0]) +0.5, sin(time[0]) +0.5, 0.0));
+    return color + (vec4(sin(time[0]) + 0.5, sin(time[0]) + 0.5, sin(time[0]) + 0.5, 0.0));
 }

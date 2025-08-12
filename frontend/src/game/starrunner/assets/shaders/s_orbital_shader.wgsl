@@ -7,9 +7,7 @@ struct Vertex {
     @location(0) position: vec3<f32>,
     @location(1) normal: vec3<f32>,
     @location(2) uv: vec2<f32>,
-
     @builtin(instance_index) instance_index: u32
-
 };
 
 struct VertexOutput {
@@ -20,7 +18,6 @@ struct VertexOutput {
     @location(1) world_normal: vec3<f32>,
     @location(2) uv: vec2<f32>,
     @location(4) color: vec4<f32>,
-
 }
 
 
@@ -28,17 +25,19 @@ struct VertexOutput {
 @group(2) @binding(0)
 var<uniform> color : vec4<f32>;
 
+
+//Time here is a vec4 to pad it to 16 bytes (4 * 4 bytes each f32) for web compatibility 
 @group(2) @binding(1)
 var<uniform> time : vec4<f32>;
 
 
 @vertex
-fn vertex(vertex : Vertex) -> VertexOutput {
+fn vertex(vertex: Vertex) -> VertexOutput {
 
-    var vertexOutput : VertexOutput;
-    
+    var vertexOutput: VertexOutput;
+
     let normalized_sin = (sin(time[0]) + 1.0) / 2.0;
-    
+
     let min_scale = 5.0;
     let max_scale = 10.0;
 
@@ -51,7 +50,7 @@ fn vertex(vertex : Vertex) -> VertexOutput {
     let final_position = vertex.position * scale;
 
     let world_transformation_matrix = mesh_functions::get_world_from_local(vertex.instance_index);
-    let updated_world_position = mesh_functions::mesh2d_position_local_to_world(world_transformation_matrix, vec4<f32>(final_position, 1.0),);
+    let updated_world_position = mesh_functions::mesh2d_position_local_to_world(world_transformation_matrix, vec4<f32>(final_position, 1.0));
 
     vertexOutput.position = mesh_functions::mesh2d_position_world_to_clip(updated_world_position);
     vertexOutput.world_normal = mesh_functions::mesh2d_normal_local_to_world(vertex.normal, vertex.instance_index);
@@ -61,13 +60,11 @@ fn vertex(vertex : Vertex) -> VertexOutput {
 
 
     return vertexOutput;
-
 }
 
 @fragment
 fn fragment(vertexOutput: VertexOutput) -> @location(0) vec4<f32> {
 
-    let pulse = (sin(time[0]) + 1.0) / 2.0; 
-    return vertexOutput.color + vec4<f32>(pulse * 0.5, pulse*0.5, pulse*0.5, 1.0);
-
+    let pulse = (sin(time[0]) + 1.0) / 2.0;
+    return vertexOutput.color + vec4<f32>(pulse * 0.5, pulse * 0.5, pulse * 0.5, 1.0);
 }

@@ -1,0 +1,15 @@
+(
+  name: "Prototype",
+  texture: "textures/ships/playership2.png",
+  ppu: 64.0,
+  scale: 1.0,
+  mass: 10.0,
+  max_speed: 200.0,
+  accel: 400.0,
+  turn_speed: 6.2831853,        // ~2π rad/s
+  collider_radius: 12.0,
+  mounts: [
+    (offset: (-1.0, 2.0), direction: (0.0, 1.0), cooldown: 0.2),
+    (offset: ( 1.0, 2.0), direction: (0.0, 1.0), cooldown: 0.2),
+  ],
+)
