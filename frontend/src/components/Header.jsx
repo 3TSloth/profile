@@ -6,7 +6,7 @@ function Header({ setActiveContent }) {
     <div id="header">
       <div className="grid grid-cols-[100px_1fr]">
         <div className="col-start-1 col-end-2 border-b-2 border-r-2 sm:border-r-0 border-cyan-500">
-          <Logo></Logo>
+          <Logo onClick={() => setActiveContent(4)}></Logo>
         </div>
         <div className="sm:visible invisible col-start-2 border-b-2 border-cyan-500">
           <NavBar

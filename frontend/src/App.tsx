@@ -50,8 +50,15 @@ function App() {
       <div className="col-start-1 col-span-2 row-start-3  text-center py-10 px-10 border-t-cyan-500 border-t-2 flex items-end justify-end">
         <p className="text-white ">
           {quotes.length > 0
-            ? quotes[activeContentIndex % quotes.length]["quote"]
-            : "Placeholder for now."}
+            ? (
+              <p>
+                Quotes from the{" "}
+                <i>
+                  Stormlight Archive
+                </i>: "{quotes[activeContentIndex % quotes.length]["quote"]}"
+              </p>
+            )
+            : ""}
         </p>
       </div>
     </div>

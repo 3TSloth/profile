@@ -1,6 +1,7 @@
 import AboutMe from "./AboutMe.jsx";
 import Contact from "./Contact.jsx";
 import Projects from "./Projects.jsx";
+import ProfilePicture from "../content/ProfilePicture.jsx";
 function MainContent({ activeContentIndex }) {
   const DefaultContent = () => (
     <div className="grid grid-cols-6 gap-2">
@@ -21,6 +22,7 @@ function MainContent({ activeContentIndex }) {
     <AboutMe key={1} />,
     <Projects key={2} />,
     <Contact key={3} />,
+    <ProfilePicture key={4} />,
   ];
 
   return content[activeContentIndex];
