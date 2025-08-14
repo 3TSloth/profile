@@ -31,20 +31,6 @@ function NavBar({ setActiveContent, orientation = "vertical" }) {
         </div>
         <div>
           <a
-            className={activeLink[1]
-              ? "text-white rounded-3xl border-2 p-1 border-blue-500"
-              : "text-white"}
-            href="#about"
-            onClick={() => {
-              setActiveContent(1);
-              setActiveLink({ 0: false, 1: true, 2: false, 3: false });
-            }}
-          >
-            About
-          </a>
-        </div>
-        <div>
-          <a
             className={activeLink[2]
               ? "text-white rounded-3xl border-2 p-1 border-blue-500"
               : "text-white"}
@@ -55,6 +41,20 @@ function NavBar({ setActiveContent, orientation = "vertical" }) {
             }}
           >
             Projects
+          </a>
+        </div>
+        <div>
+          <a
+            className={activeLink[1]
+              ? "text-white rounded-3xl border-2 p-1 border-blue-500"
+              : "text-white"}
+            href="#about"
+            onClick={() => {
+              setActiveContent(1);
+              setActiveLink({ 0: false, 1: true, 2: false, 3: false });
+            }}
+          >
+            About
           </a>
         </div>
         <div>
