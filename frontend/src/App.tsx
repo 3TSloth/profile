@@ -13,7 +13,6 @@ function App() {
   useEffect(() => {
     const initializeApp = async () => {
       try {
-        // Step 1: Fetch the configuration from our own server
         const configResponse = await fetch("/config");
         const config = await configResponse.json();
         const apiUrl = config.backendApiUrl;
@@ -24,7 +23,9 @@ function App() {
         }
 
         // Step 2: Now use that URL to fetch the quotes from the backend
-        const quotesResponse = await fetch(`${apiUrl}/api/v1/quotes`);
+        const quotesResponse = await fetch("/bff/quotes", {
+          credentials: "same-origin",
+        });
         const data = await quotesResponse.json();
         setQuotes(data);
       } catch (error) {
@@ -51,12 +52,12 @@ function App() {
         <p className="text-white ">
           {quotes.length > 0
             ? (
-              <p>
+              <span>
                 Quotes from the{" "}
                 <i>
                   Stormlight Archive
                 </i>: "{quotes[activeContentIndex % quotes.length]["quote"]}"
-              </p>
+              </span>
             )
             : ""}
         </p>

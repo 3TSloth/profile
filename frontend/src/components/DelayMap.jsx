@@ -162,27 +162,25 @@ function useTTCData() {
   useEffect(() => {
     const getTTCData = async () => {
       try {
-        const configResponse = await fetch("/config");
-        const config = await configResponse.json();
-        const apiUrl = config.backendApiUrl;
-
-        if (!apiUrl) {
-          console.error("API URL not found in config");
-          return;
+        // Call the BFF proxy (this will add IAM token server-side)
+        const TTCDataResponse = await fetch(
+          "/bff/api/v1/ttc_subway_delay_data",
+          { credentials: "same-origin" },
+        );
+        if (!TTCDataResponse.ok) {
+          throw new Error(`HTTP error! status: ${TTCDataResponse.status}`);
         }
 
-        const TTCDataResponse = await fetch(
-          `${apiUrl}/api/v1/ttc_subway_delay_data`,
-        );
         const data = await TTCDataResponse.json();
         setTTCData(data);
       } catch (error) {
-        console.error("Error when retreiving TTC Data:", error);
+        console.error("Error when retrieving TTC Data:", error);
       }
     };
 
     getTTCData();
   }, []);
+
   return [TTCData];
 }
 
