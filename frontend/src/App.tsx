@@ -13,16 +13,6 @@ function App() {
   useEffect(() => {
     const initializeApp = async () => {
       try {
-        const configResponse = await fetch("/config");
-        const config = await configResponse.json();
-        const apiUrl = config.backendApiUrl;
-
-        if (!apiUrl) {
-          console.error("API URL not found in config");
-          return;
-        }
-
-        // Step 2: Now use that URL to fetch the quotes from the backend
         const quotesResponse = await fetch("/bff/quotes", {
           credentials: "same-origin",
         });
