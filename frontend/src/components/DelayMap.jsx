@@ -8,6 +8,7 @@ import { MarkerClusterer } from "@googlemaps/markerclusterer";
 import codeDescriptions from "../utilities/codeDescriptions.json" with {
   type: "json",
 };
+import { useRef } from "react";
 
 function DelayMap() {
   const googleMapsApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
@@ -34,92 +35,175 @@ function StationMarkers() {
   const map = useMap();
   const [TTCData] = useTTCData();
 
+  // Persist across renders
+  const placeCacheRef = useRef(new Map()); // stationName -> { lat, lng, displayName }
+  const inflightRequestsRef = useRef(new Map()); // stationName -> Promise<PlaceData>
+  const createdMarkersRef = useRef([]); // AdvancedMarkerElement[]
+  const markerClustererRef = useRef(null); // MarkerClusterer
+
+  // Cache settings
+  const PLACE_TTL_MS = 1000 * 60 * 60 * 24 * 30; // 30 days
+  const CACHE_VERSION = "v1"; // bump to invalidate old entries
+
   useEffect(() => {
     if (!map || !google.maps?.marker || !google.maps?.places?.Place) return;
+    if (!TTCData || TTCData.length === 0) return;
 
-    async function placeStations() {
-      const { AdvancedMarkerElement } = await google.maps.importLibrary(
-        "marker",
-      );
-      const searchByText = google.maps.places.Place.searchByText;
-      const infoWindow = new google.maps.InfoWindow();
+    let wasCancelled = false;
 
-      if (!TTCData) return;
+    const cleanupMarkersAndClusterer = () => {
+      if (markerClustererRef.current) {
+        markerClustererRef.current.clearMarkers();
+        markerClustererRef.current = null;
+      }
+      for (const markerElement of createdMarkersRef.current) {
+        markerElement.map = null;
+      }
+      createdMarkersRef.current = [];
+    };
 
-      const stationCount = new Map();
-      const placePromises = [];
-
-      // Collect unique station names
-      const uniqueStationNames = [
-        ...new Set(TTCData.map((s) => s.station).filter(Boolean)),
-      ];
-
-      // Start all place searches in parallel
-      for (const stationName of uniqueStationNames) {
-        const promise = searchByText({
-          textQuery: stationName,
-          fields: ["location", "displayName"],
-        });
-        placePromises.push([stationName, promise]);
+    async function getPlaceDataFromCacheOrApi(stationName) {
+      // 1) In-memory cache
+      if (placeCacheRef.current.has(stationName)) {
+        return placeCacheRef.current.get(stationName);
       }
 
-      // Wait for all place lookups to complete
-      const results = await Promise.allSettled(
-        placePromises.map(([, promise]) => promise),
-      );
-
-      const placeCache = new Map();
-
-      // Match results back to station names
-      for (let i = 0; i < results.length; i++) {
-        const [stationName] = placePromises[i];
-        const result = results[i];
-
-        if (result.status === "fulfilled") {
-          const place = result.value?.places?.[0];
-          if (place?.location) {
-            placeCache.set(stationName, place);
-          } else {
-            console.warn(`⚠️ No location found for ${stationName}`);
+      // 2) sessionStorage with TTL
+      const sessionKey = `place:${CACHE_VERSION}:${stationName}`;
+      const cachedJson = sessionStorage.getItem(sessionKey);
+      if (cachedJson) {
+        try {
+          const cachedEntry = JSON.parse(cachedJson);
+          if (cachedEntry.expiresAt > Date.now()) {
+            placeCacheRef.current.set(stationName, cachedEntry.data);
+            return cachedEntry.data;
           }
-        } else {
-          console.warn(`❌ Failed to look up ${stationName}:`, result.reason);
+          sessionStorage.removeItem(sessionKey);
+        } catch {
+          sessionStorage.removeItem(sessionKey);
         }
       }
 
-      const markers = [];
-
-      // Create markers (off-map) using placeCache
-      for (const station of TTCData) {
-        const place = placeCache.get(station.station);
-        if (!place?.location) continue;
-
-        const count = stationCount.get(station.station) ?? 0;
-        stationCount.set(station.station, count + 1);
-
-        const marker = createMarker({
-          map,
-          AdvancedMarkerElement,
-          place,
-          station,
-          infoWindow,
-          offsetIndex: count,
-        });
-
-        if (marker) markers.push(marker);
+      // 3) De-duplicate concurrent lookups
+      if (inflightRequestsRef.current.has(stationName)) {
+        return await inflightRequestsRef.current.get(stationName);
       }
 
-      // Only now attach markers via clusterer
-      new MarkerClusterer({
-        markers,
+      // 4) Query Places API (searchByText)
+      const fetchPromise = (async () => {
+        const searchByText = google.maps.places.Place.searchByText;
+        const response = await searchByText({
+          textQuery: stationName,
+          fields: ["location", "displayName"],
+        });
+
+        const firstPlace = response?.places?.[0];
+        const location = firstPlace?.location;
+        if (!location) return null;
+
+        const placeData = {
+          lat: typeof location.lat === "function"
+            ? location.lat()
+            : location.lat,
+          lng: typeof location.lng === "function"
+            ? location.lng()
+            : location.lng,
+          displayName: firstPlace.displayName || stationName,
+        };
+
+        placeCacheRef.current.set(stationName, placeData);
+        try {
+          sessionStorage.setItem(
+            sessionKey,
+            JSON.stringify({
+              data: placeData,
+              expiresAt: Date.now() + PLACE_TTL_MS,
+            }),
+          );
+        } catch {
+          // ignore quota errors
+        }
+        return placeData;
+      })().catch((error) => {
+        console.warn(`Failed to look up "${stationName}":`, error);
+        return null;
+      });
+
+      inflightRequestsRef.current.set(stationName, fetchPromise);
+      try {
+        return await fetchPromise;
+      } finally {
+        inflightRequestsRef.current.delete(stationName);
+      }
+    }
+
+    async function buildMarkersAndClusterer() {
+      cleanupMarkersAndClusterer();
+
+      const { AdvancedMarkerElement } = await google.maps.importLibrary(
+        "marker",
+      );
+      const infoWindow = new google.maps.InfoWindow();
+
+      // Unique station names from data
+      const uniqueStationNames = [
+        ...new Set(TTCData.map((row) => row.station).filter(Boolean)),
+      ];
+
+      // Resolve all station locations (cached when available)
+      const resolvedPlaceDataList = await Promise.all(
+        uniqueStationNames.map((stationName) =>
+          getPlaceDataFromCacheOrApi(stationName)
+        ),
+      );
+      if (wasCancelled) return;
+
+      // stationName -> placeData
+      const placeDataByStationName = new Map();
+      uniqueStationNames.forEach((stationName, index) => {
+        const placeData = resolvedPlaceDataList[index];
+        if (placeData) placeDataByStationName.set(stationName, placeData);
+      });
+
+      // Track how many markers per station (for jitter spacing)
+      const perStationMarkerCount = new Map();
+      const newMarkerElements = [];
+
+      for (const dataRow of TTCData) {
+        const placeData = placeDataByStationName.get(dataRow.station);
+        if (!placeData) continue;
+
+        const existingCount = perStationMarkerCount.get(dataRow.station) ?? 0;
+        perStationMarkerCount.set(dataRow.station, existingCount + 1);
+
+        const markerElement = createMarker({
+          map,
+          AdvancedMarkerElement,
+          place: { location: placeData, displayName: placeData.displayName },
+          station: dataRow,
+          infoWindow,
+          offsetIndex: existingCount,
+        });
+
+        if (markerElement) newMarkerElements.push(markerElement);
+      }
+
+      markerClustererRef.current = new MarkerClusterer({
+        markers: newMarkerElements,
         map,
         minimumClusterSize: 2,
         maxZoom: 17,
         markerLayer: true,
       });
+      createdMarkersRef.current = newMarkerElements;
     }
 
-    placeStations();
+    buildMarkersAndClusterer();
+
+    return () => {
+      wasCancelled = true;
+      cleanupMarkersAndClusterer();
+    };
   }, [map, TTCData]);
 
   return null;
@@ -162,9 +246,8 @@ function useTTCData() {
   useEffect(() => {
     const getTTCData = async () => {
       try {
-        // Call the BFF proxy (this will add IAM token server-side)
         const TTCDataResponse = await fetch(
-          "/bff/api/v1/ttc_subway_delay_data",
+          "/bff/ttc_subway_delay_data",
           { credentials: "same-origin" },
         );
         if (!TTCDataResponse.ok) {
