@@ -17,10 +17,11 @@ function Projects() {
           Play Starrunner (will open a new window, meant for desktop)
         </a>
         <p className="text-white py-10">
-          As a fun exercise, this is a map containing all the causes for a
-          subway delay in Toronto so far in 2025. It may take a moment to load.
+          As a fun exercise, this is a map showing (currently only 5) causes for
+          a TTC (Toronto Transit Corporation) Subway Delay.
 
-          The information is pulled from Toronto's Open Data Catalogue.
+          The information is pulled from Toronto's Open Data Catalogue (which
+          contains typos/errors, e.g. 'Assualt' instead of 'Assault').
 
           Click on a cluster then on a code to view how long the delay was for.
           (Zoom in to see each instance)

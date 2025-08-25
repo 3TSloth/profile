@@ -1,13 +1,25 @@
 services:
+
+  cloudflared:
+    profiles: [production]
+    image: cloudflare/cloudflared:latest
+    restart: unless-stopped
+    command: ["tunnel","--no-autoupdate","run"]
+    environment:
+      - TUNNEL_TOKEN_FILE=/run/secrets/cloudflare_tunnel_key
+    secrets:
+      - cloudflare_tunnel_key
+    depends_on:
+      - frontend
+      - backend
+
   frontend:
     profiles: [production]
     build:
       context: ./frontend
       dockerfile: ./frontend.production.Dockerfile
-    volumes:
-      - frontend_dist:/app/dist
-    ports:
-      - 8080:8000
+    expose:
+     - "8000"
 
 
 
@@ -15,6 +27,8 @@ services:
     profiles: [production]
     env_file:
       - ./backend/.env.production.backend
+    environment:
+      ROCKET_PROXY_PROTO_HEADER: "X-Forwarded-Proto"
     entrypoint: /bin/bash -c "export DATABASE_URL=postgresql://$(cat /run/secrets/db_user):$(cat /run/secrets/db_password)@$(cat /run/secrets/db_host)/$(cat /run/secrets/db_name) && diesel setup && diesel migration run && /usr/local/bin/profile_backend"
     secrets:
      - db_name
@@ -65,6 +79,10 @@ services:
           target: /rust-dir/src
     ports:
       - 8000:8000
+    networks:
+      default:
+        aliases:
+          - backend
 
 
   mock-database:
@@ -92,11 +110,9 @@ services:
         start_period: 30s
         timeout: 10s 
 
-volumes:
-  frontend_dist:
-
-
 secrets:
+  cloudflare_tunnel_key:
+    file: ./cloudflare_tunnel_key.txt
   db_name:
     file: ./db_name.txt
   db_password:

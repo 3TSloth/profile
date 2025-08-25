@@ -1,5 +1,6 @@
 *.env
 db_*.txt
+cloudflare_tunnel_key.txt
 .vite
 dist
 deno.lock
