@@ -72,8 +72,8 @@ async fn bff_quotes(
 
 #[launch]
 fn rocket() -> _ {
-    let backend_internal =
-        env::var("BACKEND_API_INTERNAL_URL").unwrap_or_else(|_| "http://backend:8000".to_string());
+    let backend_internal = env::var("BACKEND_API_INTERNAL_URL")
+        .unwrap_or_else(|_| "http://mock-backend:8000".to_string());
 
     // Build client once
     let client = Client::builder()
