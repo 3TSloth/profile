@@ -2,32 +2,18 @@
 
 import MainContent from "./components/content/MainContent.jsx";
 import NavBar from "./components/NavBar.jsx";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Header from "./components/Header.jsx";
+import useQuotes from "./hooks/useQuotes.jsx";
+import Footer from "./components/Footer.jsx";
 
 function App() {
   const [activeContentIndex, setActiveContent] = useState(0);
 
-  const [quotes, setQuotes] = useState([]);
-
-  useEffect(() => {
-    const initializeApp = async () => {
-      try {
-        const quotesResponse = await fetch("/bff/quotes", {
-          credentials: "same-origin",
-        });
-        const data = await quotesResponse.json();
-        setQuotes(data);
-      } catch (error) {
-        console.error("Error during app initialization:", error);
-      }
-    };
-
-    initializeApp();
-  }, []);
+  const quotes = useQuotes();
 
   return (
-    <div className="grid grid-rows-[auto_1fr_auto] grid-cols-[100px_1fr] min-h-screen bg-black font-display">
+    <div className="grid grid-rows-[auto_1fr_auto] grid-cols-[150px_1fr] min-h-screen bg-black font-display">
       <div className="col-span-full">
         <Header setActiveContent={setActiveContent} />
       </div>
@@ -39,18 +25,7 @@ function App() {
       </div>
       <div className="col-start-1 row-start-3" />
       <div className="col-start-1 col-span-2 row-start-3  text-center py-10 px-10 border-t-cyan-500 border-t-2 flex items-end justify-end">
-        <p className="text-white ">
-          {quotes.length > 0
-            ? (
-              <span>
-                Quotes from the{" "}
-                <i>
-                  Stormlight Archive
-                </i>: "{quotes[activeContentIndex % quotes.length]["quote"]}"
-              </span>
-            )
-            : ""}
-        </p>
+        <Footer activeContentIndex={activeContentIndex} quotes={quotes} />
       </div>
     </div>
   );
