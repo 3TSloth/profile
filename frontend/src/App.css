@@ -2,25 +2,37 @@
 
 
 @theme {
-  --font-display: "Anta-Regular";
+  --font-display: "NotoSerif-VariableFont_wdth,wght";
 
 }
 
 @layer base {
 
   @font-face {
-    font-family: Anta-Regular;
+    font-family: "NotoSerif";
     font-style: normal;
     font-weight: 200 700;
     font-display: swap;
-    src: url("/fonts/Anta-Regular.ttf");
+    src: url("/fonts/NotoSerif-VariableFont_wdth,wght.ttf");
   }
 
 
     h1 {
       font-size: var(--text-2xl);
+      font-weight: 800;
     }
     h2 {
       font-size: var(--text-xl);
+      font-weight: 800;
+    }
+    p {
+      font-size: var(--text-xl);
+      font-weight: 400;
+      font-style: normal;
+    }
+
+    a {
+      font-size: var(--text-xl);
+      font-weight: 400;
     }
   }
