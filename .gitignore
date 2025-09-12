@@ -6,5 +6,5 @@ dist
 deno.lock
 target
 node_modules
-
+.last-run
 **/Cargo.lock
