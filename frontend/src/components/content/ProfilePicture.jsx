@@ -9,7 +9,7 @@ function ProfilePicture() {
         />
       </div>
       <div className="col-start-2 row-start-2">
-        <p className="text-white">
+        <p className="text-white text-2xl">
           Congrats on finding this Easter Egg! You might be curious as to why I
           chose a sloth as my 'mascot'; it's simply because I was born with only
           3 toes on my right foot and find sloths to be cute (especially 3-toed

@@ -9,7 +9,7 @@ function NavBar({ setActiveContent, orientation = "vertical" }) {
   });
 
   return (
-    <div className="nav">
+    <nav className="nav">
       <div
         className={orientation === "vertical"
           ? "grid grid-rows-1  gap-10 px-5 py-10"
@@ -72,7 +72,7 @@ function NavBar({ setActiveContent, orientation = "vertical" }) {
           </a>
         </div>
       </div>
-    </div>
+    </nav>
   );
 }
 

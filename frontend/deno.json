@@ -7,6 +7,7 @@
   },
   "imports": {
     "@googlemaps/markerclusterer": "npm:@googlemaps/markerclusterer@^2.6.2",
+    "@playwright/test": "npm:@playwright/test@^1.55.0",
     "@supabase/supabase-js": "npm:@supabase/supabase-js@^2.57.0",
     "@tailwindcss/vite": "npm:@tailwindcss/vite@^4.1.12",
     "@types/react": "npm:@types/react@^19.1.12",
