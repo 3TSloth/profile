@@ -20,7 +20,7 @@ struct AppState {
 async fn bff_ttc_subway_data(
     state: &State<AppState>,
 ) -> Result<RawJson<String>, (rocket::http::Status, String)> {
-    let url = format!("{}/api/v1/ttc_subway_delay_data", state.backend_internal);
+    let url = format!("{}/api/v1/stations", state.backend_internal);
     let req = state.client.get(&url);
 
     let resp = req.send().await.map_err(|e| {
