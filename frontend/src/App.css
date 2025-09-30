@@ -7,6 +7,9 @@
 }
 
 @layer base {
+    html, body, #root {
+    height: 100%;
+  }
 
   @font-face {
     font-family: "NotoSerif";
@@ -18,20 +21,23 @@
 
 
     h1 {
-      font-size: var(--text-2xl);
+      font-size: var(--text-4xl);
       font-weight: 800;
     }
     h2 {
-      font-size: var(--text-xl);
+      font-size: var(--text-3xl);
       font-weight: 800;
     }
     p {
       font-weight: 400;
       font-style: normal;
+      font-size: var(--text-xl);
     }
 
     a {
       font-size: var(--text-xl);
       font-weight: 400;
     }
+
+
   }
