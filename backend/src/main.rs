@@ -1,5 +1,7 @@
 use diesel::prelude::*;
 use profile_backend::models::Quote;
+use profile_backend::models::StationOut;
+use profile_backend::models::StationRow;
 use profile_backend::models::TtcSubwayDelayData;
 
 use profile_backend::schema::quotes::dsl::*;
@@ -49,6 +51,62 @@ fn get_ttc_subway_delay_data() -> Value {
     json!(results)
 }
 
+use diesel::sql_query;
+
+#[get("/api/v1/stations")]
+pub fn get_stations() -> Result<Json<Vec<StationOut>>, Status> {
+    let connection = &mut establish_connection();
+
+    let sql = r#"
+        WITH ranked AS (
+          SELECT
+            d.station,
+            MIN(d.line) AS line,
+            g.lat, g.lon,
+            d.code,
+            COUNT(*) AS cnt,
+            ROW_NUMBER() OVER (
+              PARTITION BY d.station
+              ORDER BY COUNT(*) DESC, d.code
+            ) AS rn
+          FROM ttc_subway_delay_data d
+          JOIN station_geo_cache g
+            ON g.station_name = d.station
+          GROUP BY d.station, g.lat, g.lon, d.code
+        )
+        SELECT
+          station AS name,
+          line,
+          lat,
+          lon,
+          code AS top_code,
+          cnt  AS top_count
+        FROM ranked
+        WHERE rn = 1
+        ORDER BY station
+    "#;
+
+    let rows = sql_query(sql).load::<StationRow>(connection).map_err(|e| {
+        eprintln!("DB error (stations+cause): {e}");
+        Status::InternalServerError
+    })?;
+
+    let out = rows
+        .into_iter()
+        .map(|r| StationOut {
+            id: format!("{}@{:.6},{:.6}", r.name, r.lat, r.lon),
+            name: r.name,
+            lat: r.lat,
+            lon: r.lon,
+            line: r.line,
+            top_cause_code: r.top_code,
+            top_cause_count: r.top_count,
+        })
+        .collect();
+
+    Ok(Json(out))
+}
+
 #[launch]
 fn rocket() -> _ {
     dotenvy::from_filename(".env.development").ok();
@@ -75,6 +133,9 @@ fn rocket() -> _ {
     .expect("error when attempting to make cors");
 
     rocket::build()
-        .mount("/", routes![index, get_quotes, get_ttc_subway_delay_data])
+        .mount(
+            "/",
+            routes![index, get_quotes, get_ttc_subway_delay_data, get_stations],
+        )
         .attach(cors)
 }

@@ -73,3 +73,35 @@ impl FromSql<crate::schema::sql_types::Weekday, Pg> for WeekdayEnum {
         }
     }
 }
+
+#[derive(diesel::QueryableByName, Debug)]
+pub struct StationRow {
+    #[diesel(sql_type = diesel::sql_types::Text)]
+    pub name: String,
+
+    #[diesel(sql_type = diesel::sql_types::Nullable<diesel::sql_types::Text>)]
+    pub line: Option<String>,
+
+    #[diesel(sql_type = diesel::sql_types::Float8)]
+    pub lat: f64,
+
+    #[diesel(sql_type = diesel::sql_types::Float8)]
+    pub lon: f64,
+
+    #[diesel(sql_type = diesel::sql_types::Nullable<diesel::sql_types::Text>)]
+    pub top_code: Option<String>,
+
+    #[diesel(sql_type = diesel::sql_types::BigInt)]
+    pub top_count: i64,
+}
+
+#[derive(Serialize, Debug)]
+pub struct StationOut {
+    pub id: String,
+    pub name: String,
+    pub lat: f64,
+    pub lon: f64,
+    pub line: Option<String>,
+    pub top_cause_code: Option<String>,
+    pub top_cause_count: i64,
+}

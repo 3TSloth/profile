@@ -240,33 +240,6 @@ function createMarker(
   return marker;
 }
 
-function useTTCData() {
-  const [TTCData, setTTCData] = useState([]);
-
-  useEffect(() => {
-    const getTTCData = async () => {
-      try {
-        const TTCDataResponse = await fetch(
-          "/bff/ttc_subway_delay_data",
-          { credentials: "same-origin" },
-        );
-        if (!TTCDataResponse.ok) {
-          throw new Error(`HTTP error! status: ${TTCDataResponse.status}`);
-        }
-
-        const data = await TTCDataResponse.json();
-        setTTCData(data);
-      } catch (error) {
-        console.error("Error when retrieving TTC Data:", error);
-      }
-    };
-
-    getTTCData();
-  }, []);
-
-  return [TTCData];
-}
-
 function jitterPosition(position, index) {
   const lat = typeof position.lat === "function"
     ? position.lat()

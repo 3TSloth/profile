@@ -14,6 +14,22 @@ diesel::table! {
 }
 
 diesel::table! {
+    station_geo_cache (station_key) {
+        station_key -> Text,
+        station_name -> Text,
+        city -> Text,
+        country_cc -> Text,
+        lat -> Float8,
+        lon -> Float8,
+        display_name -> Nullable<Text>,
+        osm_id -> Nullable<Int8>,
+        osm_type -> Nullable<Text>,
+        source -> Text,
+        updated_at -> Timestamptz,
+    }
+}
+
+diesel::table! {
     use diesel::sql_types::*;
     use super::sql_types::Weekday;
 
@@ -32,4 +48,8 @@ diesel::table! {
     }
 }
 
-diesel::allow_tables_to_appear_in_same_query!(quotes, ttc_subway_delay_data,);
+diesel::allow_tables_to_appear_in_same_query!(
+    quotes,
+    station_geo_cache,
+    ttc_subway_delay_data,
+);
