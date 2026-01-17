@@ -35,10 +35,6 @@ function NavBar({ setActiveContent, orientation = "vertical" }) {
               ? "text-white rounded-3xl border-2 p-1 border-blue-500"
               : "text-white"}
             href="#projects"
-            onClick={() => {
-              setActiveContent(2);
-              setActiveLink({ 0: false, 1: false, 2: true, 3: false });
-            }}
           >
             Projects
           </a>

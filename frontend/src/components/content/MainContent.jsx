@@ -4,8 +4,8 @@ import Projects from "./Projects.jsx";
 import ProfilePicture from "../content/ProfilePicture.jsx";
 function MainContent({ activeContentIndex }) {
   const DefaultContent = () => (
-    <div className="grid grid-cols-6 grid-rows-2 gap-2">
-      <div className="col-start-3 col-end-5 py-10">
+    <div className="grid grid-cols-4 justify-center">
+      <div className="col-start-2 col-span-2 py-10 ">
         <p className="text-white text-xl">
           Hi there, I'm a software developer with a passion for creating
           innovative solutions. I enjoy working with various technologies and am
@@ -13,12 +13,18 @@ function MainContent({ activeContentIndex }) {
           that people will find helpful.
         </p>
       </div>
-      <div className="col-start-3 col-end-5 row-start-2">
+      <div className="col-start-2 col-span-2 row-start-2">
         <p className="text-white text-xl">
           Currently looking for work, check the contact link to reach me. In the
-          meantime, feel free to check out my Projects section to see what I've
-          been up to.
+          meantime, free to check out my Projects section to see what I've been
+          up to.
         </p>
+      </div>
+      <div
+        id="projects"
+        className="col-start-2 col-span-2 row-start-3 row-span-2"
+      >
+        <Projects />
       </div>
     </div>
   );
