@@ -1,72 +1,36 @@
-import { useState } from "react";
+import { PAGE_VIEWS } from "../constants/pageViews.js";
 
-function NavBar({ setActiveContent, orientation = "vertical" }) {
-  const [activeLink, setActiveLink] = useState({
-    0: false,
-    1: false,
-    2: false,
-    3: false,
-  });
+const NAV_ITEMS = [
+  { id: PAGE_VIEWS.HOME, label: "Home", href: "#home" },
+  { id: PAGE_VIEWS.PROJECTS, label: "Projects", href: "#projects" },
+  { id: PAGE_VIEWS.ABOUT, label: "About", href: "#about" },
+  { id: PAGE_VIEWS.CONTACT, label: "Contact", href: "#contact" },
+];
 
+function NavBar(
+  { activeContentIndex, setActiveContent, orientation = "vertical" },
+) {
   return (
     <nav className="nav">
       <div
         className={orientation === "vertical"
-          ? "grid grid-rows-1  gap-10 px-5 py-10"
-          : "grid grid-cols-4 auto-cols-max justify-items-center  gap-10 px-5 py-10"}
+          ? "flex flex-col gap-10 px-5 py-10"
+          : "flex flex-row justify-center gap-10 flex-wrap px-5 py-10"}
       >
-        <div>
-          <a
-            className={activeLink[0]
-              ? "text-white rounded-3xl border-2 p-1 border-blue-500"
-              : "text-white"}
-            href="#home"
-            onClick={() => {
-              setActiveContent(0);
-              setActiveLink({ 0: true, 1: false, 2: false, 3: false });
-            }}
-          >
-            Home
-          </a>
-        </div>
-        <div>
-          <a
-            className={activeLink[2]
-              ? "text-white rounded-3xl border-2 p-1 border-blue-500"
-              : "text-white"}
-            href="#projects"
-          >
-            Projects
-          </a>
-        </div>
-        <div>
-          <a
-            className={activeLink[1]
-              ? "text-white rounded-3xl border-2 p-1 border-blue-500"
-              : "text-white"}
-            href="#about"
-            onClick={() => {
-              setActiveContent(1);
-              setActiveLink({ 0: false, 1: true, 2: false, 3: false });
-            }}
-          >
-            About
-          </a>
-        </div>
-        <div>
-          <a
-            className={activeLink[3]
-              ? "text-white rounded-3xl border-2 p-1 border-blue-500"
-              : "text-white"}
-            href="#contact"
-            onClick={() => {
-              setActiveContent(3);
-              setActiveLink({ 0: false, 1: false, 2: false, 3: true });
-            }}
-          >
-            Contact
-          </a>
-        </div>
+        {NAV_ITEMS.map((item) => (
+          <div key={item.id}>
+            <a
+              className={activeContentIndex === item.id
+                ? "text-white rounded-3xl border-2 p-1 border-blue-500"
+                : "text-white"}
+              href={item.href}
+              aria-current={activeContentIndex === item.id ? "page" : undefined}
+              onClick={() => setActiveContent(item.id)}
+            >
+              {item.label}
+            </a>
+          </div>
+        ))}
       </div>
     </nav>
   );
