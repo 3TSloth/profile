@@ -11,25 +11,26 @@ function Projects() {
               2 small projects I've been working on; a spaceship fighting
               simulation and a map displaying TTC Subway delays described below.
             </p>
+            <p className="py-4">
+              As a fun exercise, this is a map showing (currently only 5) causes
+              for a TTC (Toronto Transit Corporation) Subway Delay.
+
+              The information is pulled from Toronto's Open Data Catalogue
+              (which contains typos/errors, e.g. 'Assualt' instead of
+              'Assault').
+            </p>
+
+            <p>
+              Click on a cluster then on a code to view how long the delay was
+              for. (Zoom in to see each instance)
+            </p>
           </li>
-          <p className="py-4">
-            As a fun exercise, this is a map showing (currently only 5) causes
-            for a TTC (Toronto Transit Corporation) Subway Delay.
-
-            The information is pulled from Toronto's Open Data Catalogue (which
-            contains typos/errors, e.g. 'Assualt' instead of 'Assault').
-          </p>
-
-          <p>
-            Click on a cluster then on a code to view how long the delay was
-            for. (Zoom in to see each instance)
-          </p>
         </ul>
       </div>
-      <div className="row-start-2 col-start-1 col-span-6 row-span-2">
+      <div className="row-start-2 col-start-1 col-span-5 row-span-2">
         <DelayMapLeaflet />
       </div>
-      <div className="row-start-4 col-start-1 col-span-3">
+      <div className="row-start-4 col-start-1 col-span-3 mt-10">
         <a
           className="text-yellow-400 underline "
           href="/starrunner/index.html"
