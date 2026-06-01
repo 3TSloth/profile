@@ -54,13 +54,14 @@ services:
       watch:
         - action: sync
           path: ./frontend/src
-          target: /deno-dir/src
+          target: /app/src
         - action: rebuild
           path: ./frontend/deno.json
     ports:
-      - 8080:8000
+      - "127.0.0.1:5173:5173"
+    volumes:      
+      - ./frontend:/app
 
-      
   mock-backend:
     profiles: [dev]
     entrypoint: /bin/bash -c "export DATABASE_URL=postgresql://$(tr -d '\n' < /run/secrets/db_user_dev):$(tr -d '\n' < /run/secrets/db_password_dev)@mock-database/$(tr -d '\n' < /run/secrets/db_name_dev) && diesel setup && diesel migration run && cargo run"
@@ -80,7 +81,7 @@ services:
           path: ./backend/src
           target: /rust-dir/src
     ports:
-      - 8070:8000
+      - "127.0.0.1:8070:8000"
 
 
   mock-database:
@@ -127,4 +128,3 @@ secrets:
     file: ./db_user_dev.txt
   db_host_dev:
     file: ./db_host_dev.txt
-

@@ -1,9 +1,9 @@
 {
   "tasks": {
-    "dev": "deno run -A --node-modules-dir npm:vite",
-    "build": "deno run -A --node-modules-dir npm:vite build --mode development",
-    "build_production": "deno run -A --node-modules-dir npm:vite build --mode production",
-    "preview": "deno run -A --node-modules-dir npm:vite preview"
+    "dev": "deno run -A npm:vite dev --host 0.0.0.0 --port 5173 --strictPort",
+    "build": "deno run -A npm:vite build --mode development",
+    "build_production": "deno run -A npm:vite build --mode production",
+    "preview": "deno run -A npm:vite preview"
   },
   "imports": {
     "@googlemaps/markerclusterer": "npm:@googlemaps/markerclusterer@^2.6.2",
