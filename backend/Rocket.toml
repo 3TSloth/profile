@@ -5,4 +5,4 @@ port = 8000
 
 
 [default.databases]
-diesel_mysql = { url = { env = "DATABASE_URL" } }
+diesel_postgres = { url = { env = "DATABASE_URL" } }
