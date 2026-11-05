@@ -6,7 +6,7 @@ function Footer({ activeContentIndex, quotes }) {
           <span>
             Quotes from the{" "}
             <i>
-              Stormlight Archive
+              Stormlight Archive book series by Brandon Sanderson
             </i>: "{quotes[activeContentIndex % quotes.length]["quote"]}"
           </span>
         )
